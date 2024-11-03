@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Igaz/Hamis Kvíz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .question {
+            margin-bottom: 15px;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Igaz/Hamis Kvíz</h1>
+    <div id="quiz"></div>
+    <button onclick="evaluateQuiz()">Eredmény kiértékelése</button>
+    <button onclick="restartQuiz()">Újrakezdés</button>
+    <div class="result" id="result"></div>
+
+    <script>
+        // 50 kérdés a kérdésbankban
+        const kerdesbank = [
+            "Az archaikus korban a nevelés célja a bátor harcosok nevelése volt, mint például Homérosz szereplői az Odüsszeában.",
+            "Görög fiúk nevelésének színhelye a háború és a népgyűlés volt. A háborúban sajátították el a fegyverforgatást, míg a népgyűlésben a szónoki jártasságot, mely fontos jellemzője volt a kor művelt, előkelő polgárainak.",
+            "A Spártai nevelés tartalma gyakorlatilag egy államilag szervezettkatonai nevelés volt.",
+            "A spártai gyermekek hét éves koruktól vetek részt a katonai kiképzésen, ahol rideg körülmények között éltek, miközben sötétséghez, hideghez, magányhoz szoktatták őket. Az olvasás és írás terén csak a legszükségesebbre tanították meg őket.",
+            "Arisztotelész az, aki a gyermeki fejlődést különböző szakaszokra bontja, a megszületéstől 21 éves korig három egymással megegyező fejlődési szakaszt különít el.",
+            "Róma átvette a hellénisztikus görög kultúra – és ezen belül a nevelés- értékeinek java részét, de más nevelési értékek szerint zajlott a gyereknevelés, mint Görögországban.",
+            "A rómaiak „derék férfi” eszménye az ősi paraszti társadalom értékeiből táplálkozott, tehát a gyakorlatiasság volt jellemző anevelés területén is.",
+            "A római család egy zárt közösséget alkotott, melyben a császárkorig az apa feltétlen hatalommal bírt, arra is joga volt, hogy a gyermekeit megölhesse, akár nagykorúságuk után is.",
+            "A római gyermek első nevelője hétéves koráig az édesanyja volt, tőle tanulta meg az ősi hagyományokat, a vallás legfontosabb tanait, a fegyelmezett magatartást.",
+            "A római gyermek hetedik életévtől az apa vette át a tanítást, megtanította írni, olvasni, számolni és a gyakorlati élet legfontosabb szabályaira.",
+            "A középkori oktatás világi nevelési színterei a városi iskolák, céhek, lovagi udvarok voltak.",
+	    "Michel de Montaigne francia humanista gondolkodó, „Inkább tudós, mint talpraesett embert” akart nevelni.",
+            "A Ratio studiorum: a református iskolák 1599: bevezetett, hosszú időn át érvényes tanulmányi szabályzata.",
+            "Rousseau Emil, avagy a nevelésről c. nevelési regénye nagy hatással van korára. Hiszi, hogy a gyermek jónak születik, de a társadalom romlottá teszi. Fontosnak tartja, hogy a pedagógia a gyermek köré rendelődjön, a nevelő olyan helyzeteket, szituációkat teremtsen, amelyek segítségével a növendék életre szóló tapasztalatokat szerezhet.",
+            "Herbart 1907-ben megnyitotta a Kisgyermek ház nevü intézményt.",
+            "16. Nem minden társadalom számára létkérdés, hogy a felnövekvö új generációk ki tudják aknázni képességeiket.",
+            "A mai tudományos felfogásnak megfelelő egyik megközelítés szerint a nevelés nevelő és növendék kölcsönhatása.",
+            "Hosszú évszázadok nevelési gyakorlatában játszott fontos szerepet a testi fenyítés.",
+            "Egyes országokban a nemzetközi integráció, a természeti környezet tisztelete vagy a felnőtt életre való felkészítés nem kap szerepet.",
+            "Gyermekkép alatt olyan komplex ismeretet, illetve hiedelemrendszert értünk, amelyben egy adott kultúra adott társadalmi közegének gyermekre, gyermekkorra vonatkozó tudása összegződik.",
+            "Az élethosszig tartó tanulás az Európai Unió praxisának egyik alapvető követelménye az egyénnel szemben, mivel az egzisztenciális biztonság fenntartásához nélkülözhetetlen.",
+            "A magyar nyelvben a nevelés kifejezés etimológiailag a növel igével hozható összefüggésbe.",
+            "A nemesi családok gyermekei közül a középkor folyamán sokan kolostorokban nevelődtek.",
+            "A domonkos rend szerzetesei befogadták kolostoraikba a törvénytelen gyermekeket.",
+            "A XIX. század elején alakkultak ki Európában a nemzeti közoktatási rendszerek.",
+            "A tankötelezettség bevezetése és egyben a magyarországi iskolahálózat polgári jellegű átalakítása, a modern közoktatás kiépítése báró Eötvös József nevéhez fűződik.",
+            "Az egyéni életút szempontjából legkorábbi szocializációs- nevelési közeg társadalmunkban a család.",
+            "A görögök nem játszottak fontos szerepet a nevelés történetében.",
+            "A felvilágosodás jellemző eszmeisége a konzervatizmus, másik jellegzetessége a deizmus.",
+            "A filantropisták mozgalma Rousseau gondolataira épült.",
+            "Rousseau egyik fő gondolatmenete, hogy a gyermek jónak születik, de a társadalom romlottá teszi.",
+            "A humanista pedagógia kiemelkedő egyénisége volt Mórus Tamás.",
+            "Comenius hitt abban, hogy a neveléssel a társadalmi bajok gyógyithatóak.",
+            "Maria Montssori 1907-ben megnyitotta a Kisgyermekek Háza nevű intézményt.",
+            "Az ókori rómában a nevelés célja a bátor, fegyelmezett polgárrá nevelés volt.",
+            "Arisztotelész sajátos pedagógiai módszere a heurisztikus módszer.",
+            "Az Európai Unió emberképe: a morális és ugyanakkor szociálisan életképes állampolgár.",
+            "Harmónia-modell: a valóság megszépitett, a negativumokat elfedő, félrevezető bemutatása.",
+            "Az athéni magántanítók ingyen oktattak.",
+            "A középkori Európában a legtöbb szerzetesrend foglalkozott gyermekek oktatásával és nevelésével.",
+            "A tankötelezettség bevezetése a Mária Terézia uralkodásának ideje alatt megszülető 1777-es Ratio Educationis oktatásügyi rendelkezéshez kötődik.",
+            "A modern társadalomban megfigyelhető, hogy a családokban a tudatos nevelés részaránya folyamatosan növekszik az ad hoc jellegű nevelési cselekményekkel szemben.",
+            "Az ókori Athénban a gyerekek 6-7 éves koruktól magánoktatásban részesültek, melynek színhelyei: Grammatitész háza, Kitharisztész háza és Palasztra.",
+            "Szent Ágoston hitt a gyermek, nevelhetőségében, fontosnak tartotta az anya - gyermek kapcsolatot",
+            "A nevelés-képzés-oktatás rendszerén belül az óvoda az első szint, ahol a gyermek először találkozik a társadalom szervezett területével.",
+            "Társadalom és nevelés kölcsönhatásának tárgyalása során mikro-szinten az intézmények nevelési-oktatási folyamataira, osztályok, csoportok életének sajátosságaira összpontosítunk",
+            "A gyermekekről alkotott pedagógiai kép az idők folyamán állandó.",
+            "A szocializáció és a nevelés folyamata nem áll összefüggésben egymással.",
+            "Herbart pedagógiája elsősorban individuális alapozású szilárd filozófiai alapokon nyugvó neveléstan.",
+            "Cecil Reddie (1858-1932) a nemzetközi New School mozgalom első és példaértékű intézményeként Angliában megszervezte a ma is működő Abbotsholme Schoolt.",
+            "Celestine Freinet gyakorló pedagógusként a Modern Francia Iskola kiemelkedő tagja volt. A gyermek személyiségénekfejlesztéséhez olyan iskolát valósított meg, amelyik felszabadította a tanulók aktivitását, érdeklődését.",
+            "A 18–19. század végén Európában kialakult reformpedagógiai mozgalom a nevelés és az oktatás radikális átalakítására törekedett. Szakított a korábbi iskolák tananyag- központúságával, az egydimenziós értelemfejlesztéssel, a gyermeket, a tapasztalati úton való megismerést, és a sokoldalú képességfejlesztést állította a középpontba.",
+            "A szociológia az oktatási egyenlőtlenégek kérdéseivel foglalkozik.",
+"Az oktatás feladata a személyiségfejlesztés.",
+"Az oktatási intézmények funkciója a társadalmi integráció segítése",
+"A társadalom nem más, mint egyének összessége.",
+"Az ember társadalmiságának két alapformája: a kooperáció és a kétlábon járás képessége.",
+"A társadalmi egyenlőtlenségek az oktatással kiegyenlítődnek.",
+"Az egyenlőtlenségi rendszer stabil.",
+"Az egyenlőtlenségi rendszer többdimenziós.",
+"A nevelésszociológia tárgyát tekintve nincs egységes definíciónk.",
+"A nevelésszociológia az oktató-nevelő munkával kapcsolatos szakszociológiai eredményekkel foglalkozik.",
+"Az iskolaszociológia az iskolát mint önálló szervezetet, izoláltan vizsgálja",
+"A szocializáció folyamata óvodás kortól halálunkig tart.",
+"A szocializációs folyamatban a kisgyermekkor évei a legmeghatározóbbak.",
+"A szocializáció során tudást, gyakorlati ismereteket és készségeket sajátítunk el.",
+"A szocializáció lehet informális, formális és nem formális.",
+"A iskola a formális szocializáció tere.",
+"A szociológia az életbe való beletanulás folyamatát vizsgálja.",
+"Az elsődleges szocializáció színtere a család.",
+"A szekunder szocializációs tér a családot jelenti.",
+"A bikulturális szocializáció a kisebbségi és többségi kultúrát jelenti.",
+"A mediátor mindig a pedagógust jelenti.",
+"A transzlétor az intézményi szocializáció folyamatát segíti.",
+"A státuszorientált családban fontos szerepe van az írás-olvasás élménynek.",
+"A személyorientált családban a könyv szerepe meghatározó.",
+"A korlátozott kódhasználatra rövid, egyszerű mondatok használata jellemző.",
+"A nyelvi hátrány oka a kétnyelvűség.",
+"A nyelvi hátrány etnospecifikus.",
+"A nyelvi hátrány szorosan összefügg a szülők iskolai végzettségével.",
+"A korlátozott kódot használó nem képes a kódváltásra.",
+"Az esélyegyenlőség az egyenlő lehetőségeket és az egyenlő bánásmódot jelenti.",
+"A méltányosság csak az egyenlő hozzáféréshez szükséges támogatásokat jelenti.",
+"Az inklúzió az együttnevelést jelenti.",
+"A szeparáció az önként vállalt elkülönülést jelenti.",
+"Az integrációnál magasabb szintű az inklúzió.",
+"A primér és szekunder szocializációs tér távolsága előre jelzi a szocializációs folyamat várható nehézségeit.",
+"A szegregált oktatásnak fontos alapelve az egyenlő részvétel.",
+"Az inkluzív oktatás a különbözőségeket értékként kezeli.",
+"A szelektív iskolarendszerek alapja a tanulók különböző képességek szerinti szétválasztása.",
+"A komprehenzív iskolarendszer az azonos felkészültségű és képességű tanulók együttes nevelését jelenti.",
+"A ejtett tanterv azon élmények, tapasztalatok ismeretek összessége, amelyek nem a tanterv részei, de a tanulók által elsajátítandó, számonkért ismeretek.",
+"A rejtett tanterv a társadalmi szelekciót segíti, mivel a normák elsajátítása alapján értékeli a tanulót.",
+"Minél alacsonyabb	a család társadalmi pozíciója, annál erőteljesebb a hierarchia az iskola és a család között.",
+"A társadalmi mobilitás a társadalmi hierarchiában való felfelé irányuló mozgást jelenti.",
+"Az intragenerációs mobilitás nemzedékek közötti mobilitást jelent.",
+"Az emberi tőke a veleszületett és szerzett fizikai és szellemi készségeket, képességeket, ismereteket, tulajdonságokat jelenti.",
+"A habitus a megélt tapasztalatok és mindennapi gyakorlat során bevésődött beállítódások, elvárások, értékek összessége.",
+"A kapcsolati tőke a haszonszerzés céljából létesített kapcsolatokra fókuszál.",
+"A kulturális tőkének három összetevője van.",
+"A minőségi oktatás összetevői: az eredményesség, hatékonyság és méltányosság.",
+"A mérések kritikája szerint a tantervi tudást a diákok nem képesek iskolán kívül kamatoztatni."
+        ];
+
+// ... További kérdések az 50-ig
+       
+
+        // Helyes válaszok (true = igaz, false = hamis)
+
+        // További válaszok az 50-ig...
+        const helyesValaszok = [
+         true, true, true, true, true, true, true, true, true, true, true, false, false, true, false, false, true, true,
+         false, true, true, true, true, false, false, true, true, false, false, true, true, true, true, true, true, false, true,
+         true, false, true, false, true, true, true, false, false, false, false, true, true, true, true, false, false, true, false, false, false, true, true, true, true, false, false, true, true, true, true, false, true,
+false, false, false, true, false, true, true, false, false, true, false,  true, false, false, true, true, true, false, true, true,
+false, true, true, true, false, false, true, true, true, true, true, true,
+        ];
+
+       // Véletlenszerű kiválasztás 15 kérdésre
+function veletlenKerdesek(kerdesek, valaszok, szam) {
+    const masolat = kerdesek.map((k, i) => ({ kerdes: k, valasz: valaszok[i] }));
+    const valasztott = [];
+    for (let i = 0; i < szam; i++) {
+        const index = Math.floor(Math.random() * masolat.length);
+        valasztott.push(masolat.splice(index, 1)[0]);
+    }
+    return valasztott;
+}
+
+// Kiválasztott 15 kérdés
+const valasztottKerdesek = veletlenKerdesek(kerdesbank, helyesValaszok, 15);
+
+// Feladatsor megjelenítése
+const quizContainer = document.getElementById('quiz');
+valasztottKerdesek.forEach((item, index) => {
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question';
+    questionDiv.innerHTML = `
+        <p>${index + 1}. ${item.kerdes}</p> <!-- Számozás hozzáadása -->
+        <label><input type="radio" name="question${index}" value="true"> Igaz</label>
+        <label><input type="radio" name="question${index}" value="false"> Hamis</label>
+    `;
+    quizContainer.appendChild(questionDiv);
+});
+
+      // Kiértékelés
+function evaluateQuiz() {
+    let score = 0;
+    const resultContainer = document.getElementById('result');
+    resultContainer.innerHTML = ''; // Kiértékelés eredményének törlése előző értékeléskor
+
+    valasztottKerdesek.forEach((item, index) => {
+        const selected = document.querySelector(`input[name="question${index}"]:checked`);
+        const questionDiv = document.querySelector(`.question:nth-child(${index + 1})`);
+        
+        if (selected && (selected.value === 'true') === item.valasz) {
+            score++;
+        } else {
+            // Jelölés, ha rossz a válasz
+            const feedback = document.createElement('p');
+            feedback.style.color = 'red';
+            feedback.textContent = `Rossz válasz: ${index + 1}. kérdés helyes válasza: ${item.valasz ? 'Igaz' : 'Hamis'}`;
+            questionDiv.appendChild(feedback);
+        }
+    });
+
+    resultContainer.innerText = `Eredmény: ${score} a 15-ből`;
+}
+ // Újrakezdés: Az oldal újratöltése
+        function restartQuiz() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
